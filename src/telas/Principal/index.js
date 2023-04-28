@@ -3,8 +3,7 @@ import { View, Text } from 'react-native';
 import Cabecalho from '../../componentes/Cabecalho';
 import Produto from '../../componentes/Produtos';
 import estilos from './estilos';
-import { auth, db } from '../../config/firebase';
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
+import { BotaoProduto } from '../../componentes/BotaoProduto';
 
 export default function Principal({ navigation }) {
   const usuario = auth.currentUser;
@@ -14,16 +13,7 @@ export default function Principal({ navigation }) {
     navigation.replace('Login');
   }
 
-  useEffect(() => {
-    async function criarProduto() {
-      await addDoc(collection(db, "produtos"), {
-        nome: "Tenis",
-        preco: 89.90
-      });
-    }
 
-    criarProduto()
-  }, [])
 
   return (
     <View style={estilos.container}>
@@ -33,6 +23,8 @@ export default function Principal({ navigation }) {
       <Produto nome="Tênis" preco="200,00" />
       <Produto nome="Camisa" preco="100,00" />
       <Produto nome="Suplementos" preco="150,00" />
+
+      <BotaoProduto onPress={() => navigation.navigate('DadosProdutos')} />
      </View>
   );
 }
