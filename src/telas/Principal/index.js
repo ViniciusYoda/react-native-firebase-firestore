@@ -1,30 +1,60 @@
-import React, { useEffect } from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, RefreshControl, ScrollView } from 'react-native';
 import Cabecalho from '../../componentes/Cabecalho';
 import Produto from '../../componentes/Produtos';
 import estilos from './estilos';
 import { BotaoProduto } from '../../componentes/BotaoProduto';
+import { pegarProdutos } from '../../servicos/firestore';
 
 export default function Principal({ navigation }) {
   const usuario = auth.currentUser;
+  const [produtos, setProdutos] = useState([])
+  const [refreshing, setRefreshing] = useState(false)
 
-  function deslogar(){
+  async function carregarDadosProdutos() {
+    setRefreshing(true)
+    const produtosFirestore = await pegarProdutos()
+    setProdutos(produtosFirestore)
+    setRefreshing(false)
+  }
+
+  useEffect(() => {
+    carregarDadosProdutos()
+  }, [])
+
+  function deslogar() {
     auth.signOut();
     navigation.replace('Login');
   }
-
-
 
   return (
     <View style={estilos.container}>
       <Cabecalho logout={deslogar} />
       <Text style={estilos.texto}>Usuário: {usuario.email}</Text>
 
-      <Produto nome="Tênis" preco="200,00" />
-      <Produto nome="Camisa" preco="100,00" />
-      <Produto nome="Suplementos" preco="150,00" />
+      <ScrollView
+        style={{ width: '100%' }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={carregarDadosProdutos}
+          />
+        }
+      >
+        {
+          produtos?.map((produto) => {
+            return (
+              <Produto
+                nome={produto.nome}
+                preco={produto.preco}
+                key={produto.id}
+              />
+            )
+          })
+        }
+      </ScrollView>
 
       <BotaoProduto onPress={() => navigation.navigate('DadosProdutos')} />
-     </View>
+    </View>
   );
 }
