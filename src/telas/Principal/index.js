@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, RefreshControl, ScrollView } from 'react-native';
+import { View, Text, RefreshControl, ScrollView, TouchableOpacity } from 'react-native';
 import Cabecalho from '../../componentes/Cabecalho';
 import Produto from '../../componentes/Produtos';
 import estilos from './estilos';
@@ -44,11 +44,16 @@ export default function Principal({ navigation }) {
         {
           produtos?.map((produto) => {
             return (
-              <Produto
-                nome={produto.nome}
-                preco={produto.preco}
+              <TouchableOpacity 
                 key={produto.id}
-              />
+                onPress={() => navigation.navigate('DadosProdutos', produto)}  
+              >
+                <Produto
+                  nome={produto.nome}
+                  preco={produto.preco}
+                  
+                />
+              </TouchableOpacity>
             )
           })
         }
