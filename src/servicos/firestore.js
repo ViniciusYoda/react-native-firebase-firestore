@@ -1,5 +1,5 @@
 import { db } from "../config/firebase";
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, onSnapshot, where } from "firebase/firestore";
 
 export async function salvarProduto(data) {
    try {
@@ -27,6 +27,17 @@ export async function pegarProdutos(){
 
 }
 
+export async function pegarProdutosTempoReal(setProdutos){
+   const ref = query(collection(db, "produtos"));
+   onSnapshot(ref, (querySnapshot) => {
+      const produtos = []
+      querySnapshot.forEach(( doc ) => {
+         produtos.push({ id: doc.id, ...doc.data()})
+      })
+      setProdutos(produtos)
+   })
+}
+
 export async function atualizarProduto(produtoID, data){
    try {
       const produtoRef = doc(db, "produtos", produtoID);
@@ -48,4 +59,16 @@ export async function deletarProduto(produtoID){
       console.log('erro')
       return 'error'
    }
+}
+
+export async function buscarNomeProduto(nomeDeBusca) {
+   const produtoRef = collection(db, "produtos");
+   const q = query(produtoRef, where("nome", "==", nomeDeBusca));
+
+   let listaProdutosFiltrados = []
+   const querySnapshot = await getDocs(q);
+   querySnapshot.forEach((doc) => {
+      listaProdutosFiltrados.push({id: doc.id, ...doc.data()})
+   });
+   return listaProdutosFiltrados;
 }
